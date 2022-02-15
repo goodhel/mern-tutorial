@@ -1,0 +1,23 @@
+{
+  "name": "mern-backend",
+  "version": "1.0.0",
+  "description": "Mern Backend Tutorial",
+  "main": "app",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Mongo",
+    "Express"
+  ],
+  "author": "Yudhi Kusuma",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.2",
+    "mongoose": "^6.2.1"
+  }
+}
