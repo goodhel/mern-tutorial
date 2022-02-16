@@ -30,7 +30,7 @@ router.get('/user', userSession, async (req, res, _next) => {
  * @param {string} password
  * @param {string} phone
  */
-router.post('/', userSession, async (req, res, _next) => {
+router.post('/', async (req, res, _next) => {
     const create = await m$user.createUser(req.body)
 
     helper.sendResponse(res, create)
