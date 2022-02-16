@@ -2,12 +2,13 @@ const express = require('express')
 const router = express.Router()
 const m$goal = require('../modules/goals.module.js')
 const helper = require('../helpers/response')
+const { userSession } = require('../helpers/middleware')
 
 /**
  * List goal
  */
-router.get('/', async (req, res, _next) => {
-    const list = await m$goal.listGoal()
+router.get('/', userSession, async (req, res, _next) => {
+    const list = await m$goal.listGoal(req.user.id)
 
     helper.sendResponse(res, list)
 })
@@ -16,8 +17,8 @@ router.get('/', async (req, res, _next) => {
  * Add goal
  * @param {string} text
  */
-router.post('/', async (req, res, _next) => {
-    const list = await m$goal.createGoal(req.body)
+router.post('/', userSession, async (req, res, _next) => {
+    const list = await m$goal.createGoal({id: req.user.id, ...req.body})
 
     helper.sendResponse(res, list)
 })
@@ -27,8 +28,8 @@ router.post('/', async (req, res, _next) => {
  * @param {number} id
  * @param {string} text
  */
-router.put('/', async (req, res, _next) => {
-    const list = await m$goal.updateGoal(req.body)
+router.put('/', userSession, async (req, res, _next) => {
+    const list = await m$goal.updateGoal({user: req.user.id, ...req.body})
 
     helper.sendResponse(res, list)
 })
@@ -37,8 +38,8 @@ router.put('/', async (req, res, _next) => {
  * Delete Goal by Id
  * @param {number} id id goal
  */
-router.delete('/:id', async (req, res, _next) => {
-    const list = await m$goal.deleteGoal(req.params.id)
+router.delete('/:id', userSession, async (req, res, _next) => {
+    const list = await m$goal.deleteGoal(req.params.id, req.user.id)
 
     helper.sendResponse(res, list)
 })

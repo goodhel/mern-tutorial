@@ -1,7 +1,9 @@
 const GoalsController = require('./controllers/GoalsController')
+const UserController = require('./controllers/UserController')
 
 const _routes = [
-    ['goals', GoalsController]
+    ['goals', GoalsController],
+    ['users', UserController]
 ]
 
 const routes = (app) => {
