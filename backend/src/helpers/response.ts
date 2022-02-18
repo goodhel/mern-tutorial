@@ -1,5 +1,7 @@
+import { Response } from "express"
+
 class response {
-    sendResponse = (res, body) => {
+    sendResponse = (res: Response, body: any) => {
         try {
             if (body.code) {
                 res.status(body.code)
@@ -14,7 +16,7 @@ class response {
 
             return true
         } catch (error) {
-            console.log('sendResponse response helper Error ', error)
+            console.log('sendResponse response module Error ', error)
 
             res.status(401).send({
                 status: false,
@@ -26,4 +28,4 @@ class response {
     }
 }
 
-module.exports = new response()
+export default new response()

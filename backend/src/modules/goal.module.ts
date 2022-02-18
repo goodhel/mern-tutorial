@@ -1,16 +1,29 @@
-const Goal = require('../models/goalModel')
-const User = require('../models/userModel')
+import GoalModel from "../models/goal.model"
+import UserModel from "../models/user.model"
 
-class _goals {
-    listGoal = async (id) => {
+interface CreateGoal {
+    text: string
+    id: string
+}
+
+interface UpdateGoal {
+    text: string
+    id: string
+    user: string
+}
+
+class _goal {
+    listGoal = async (id: string) => {
         try {
-            const goals = await Goal.find({user: id})
+            const goal = await GoalModel.find({user: id})
 
             return {
                 status: true,
-                data: goals
+                data: goal
             }
         } catch (error) {
+            console.error('listGoal goal module Error ', error)
+
             return {
                 status: false,
                 error
@@ -18,9 +31,9 @@ class _goals {
         }
     }
 
-    createGoal = async (body) => {
+    createGoal = async (body: CreateGoal) => {
         try {
-            const create = await Goal.create({
+            const create = await GoalModel.create({
                 text: body.text,
                 user: body.id
             })
@@ -40,9 +53,9 @@ class _goals {
         }
     }
 
-    updateGoal = async (body) => {
+    updateGoal = async (body: UpdateGoal) => {
         try {
-            const goal = await Goal.findById(body.id)
+            const goal = await GoalModel.findById(body.id)
 
             if (!goal) {
                 return {
@@ -51,7 +64,7 @@ class _goals {
                 }
             }
 
-            const user = await User.findById(body.user)
+            const user = await UserModel.findById(body.user)
 
             if (!user) {
                 return {
@@ -69,7 +82,7 @@ class _goals {
                 }
             }
 
-            const updateGoal = await Goal.findByIdAndUpdate(body.id, body, {new: true})
+            const updateGoal = await GoalModel.findByIdAndUpdate(body.id, body, {new: true})
 
             return {
                 status: true,
@@ -85,10 +98,10 @@ class _goals {
         }
     }
 
-    deleteGoal = async (id, userId) => {
+    deleteGoal = async (id: string, userId: string) => {
         try {
-            // const goal = await Goal.deleteOne({id})
-            const goal = await Goal.findById(id)
+            // const goal = await GoalModel.deleteOne({id})
+            const goal = await GoalModel.findById(id)
 
             if (!goal) {
                 return {
@@ -97,7 +110,7 @@ class _goals {
                 }
             }
 
-            const user = await User.findById(userId)
+            const user = await UserModel.findById(userId)
 
             if (!user) {
                 return {
@@ -132,4 +145,4 @@ class _goals {
     }
 }
 
-module.exports = new _goals()
+export default new _goal()

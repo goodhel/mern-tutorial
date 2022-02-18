@@ -1,26 +1,46 @@
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const Joi = require('joi')
-const User = require('../models/userModel')
+import UserModel from "../models/user.model";
+import Joi from "joi";
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
-const secret = process.env.JWT_SECRET
-const expired = process.env.JWT_EXPIRED
+const secret = process.env.JWT_SECRET || 'merntutorialscretkey'
 
-class user {
+interface CreateUser {
+    name: string
+    email: string
+    password: string
+    phone?: string
+}
+
+interface UpdateUser {
+    id: string
+    name: string
+    email: string
+    password: string
+    phone?: string
+}
+
+interface Login {
+    email: string
+    password: string
+}
+
+class _user {
     listUser = async () => {
         try {
-            const users = await User.find()
+            const user = await UserModel.find()
 
             const data = []
-            for (const value of users) {
+
+            for (const value of user) {
                 data.push({
-                    id: value._id,
+                    id: value.id,
                     name: value.name,
-                    emaiL: value.email,
+                    email: value.email,
                     phone: value.phone
                 })
             }
-            
+
             return {
                 status: true,
                 data
@@ -35,7 +55,7 @@ class user {
         }
     }
 
-    createUser = async (body) => {
+    createUser = async (body: CreateUser) => {
         try {
             const schema = Joi.object({
                 name: Joi.string().required(),
@@ -56,31 +76,17 @@ class user {
                 }
             }
 
-            const create = await User.create({
+            const user = await UserModel.create({
                 name: body.name,
                 email: body.email,
                 password: bcrypt.hashSync(body.password, 10),
                 phone: body.phone
             })
 
-            if (create) {
-                const data = {
-                    _id: create.id,
-                    name: create.name,
-                    email: create.email,
-                    phone: create.phone
-                }
-
-                return {
-                    status: true,
-                    code: 201,
-                    data
-                }
-            }
-
             return {
-                status: false,
-                error: 'Invalid user data'
+                status: true,
+                code: 201,
+                data: user
             }
         } catch (error) {
             console.error('createUser user module Error ', error)
@@ -92,7 +98,7 @@ class user {
         }
     }
 
-    updateUser = async (body) => {
+    updateUser = async (body: UpdateUser) => {
         try {
             const schema = Joi.object({
                 id: Joi.string().required(),
@@ -114,9 +120,9 @@ class user {
                 }
             }
 
-            const findUser = await User.findById(body.id)
+            const user = await UserModel.findById(body.id)
 
-            if (!findUser) {
+            if (!user) {
                 return {
                     status: false,
                     error: 'Sorry, user not found'
@@ -126,17 +132,17 @@ class user {
             const input = {
                 name: body.name,
                 email: body.email,
-                password: bcrypt.hashSync(body.password, 10),
+                password: bcrypt.hashSync(body.password,10),
                 phone: body.phone
             }
 
-            const updateUser = await User.findByIdAndUpdate(body.id, input, { new: true})
+            const update = await UserModel.findByIdAndUpdate(body.id, input, {new: true})
 
             const data = {
-                _id: updateUser.id,
-                name: updateUser.name,
-                email: updateUser.email,
-                phone: updateUser.phone
+                _id: update.id,
+                name: update.name,
+                email: update.email,
+                phone: update.phone
             }
 
             return {
@@ -153,7 +159,7 @@ class user {
         }
     }
 
-    deleteUser = async (id) => {
+    deleteUser = async (id: string) => {
         try {
             const schema = Joi.object({
                 id: Joi.string().required(),
@@ -171,7 +177,7 @@ class user {
                 }
             }
 
-            const user = await User.findById(id)
+            const user = await UserModel.findById(id)
 
             if (!user) {
                 return {
@@ -197,7 +203,7 @@ class user {
         }
     }
 
-    login = async (body) => {
+    login = async (body: Login) => {
         try {
             const schema = Joi.object({
                 email: Joi.string().required(),
@@ -216,7 +222,7 @@ class user {
                 }
             }
 
-            const user = await User.findOne({email: body.email})
+            const user = await UserModel.findOne({email: body.email})
 
             if (!user) {
                 return {
@@ -225,14 +231,14 @@ class user {
                 }
             }
 
-            const payload = {
+            const payloadUser = {
                 i: user._id,
                 n: user.name,
                 e: user.email
             }
 
-            if(bcrypt.compareSync(body.password, user.password)) {
-                const token = jwt.sign(payload, secret, {expiresIn: String(expired)})
+            if (user && bcrypt.compareSync(body.password, user.password)) {
+                const token = jwt.sign(payloadUser, secret, {expiresIn: '30d'})
 
                 return {
                     status: true,
@@ -244,8 +250,9 @@ class user {
 
             return {
                 status: false,
-                error: 'Password salah'
+                error: 'Wrong Password'
             }
+            
         } catch (error) {
             console.error('login user module Error ', error)
 
@@ -256,9 +263,16 @@ class user {
         }
     }
 
-    userById = async (id) => {
+    userById = async (id: string) => {
         try {
-            const user = await User.findById(id)
+            const user = await UserModel.findById(id)
+
+            if (!user) {
+                return {
+                    status: false,
+                    error: 'Sorry, user not found'
+                }
+            }
 
             const data = {
                 id: user._id,
@@ -282,4 +296,4 @@ class user {
     }
 }
 
-module.exports = new user()
+export default new _user()
