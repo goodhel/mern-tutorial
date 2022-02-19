@@ -1,5 +1,5 @@
 import GoalModel from "../models/goal.model"
-import UserModel from "../models/user.model"
+import Joi from "joi"
 
 interface CreateGoal {
     text: string
@@ -33,6 +33,23 @@ class _goal {
 
     createGoal = async (body: CreateGoal) => {
         try {
+            const schema = Joi.object({
+                text: Joi.string().required(),
+                id: Joi.string().required(),
+            }).options({ abortEarly: false })
+
+            const validation = schema.validate(body)
+
+            if (validation.error) {
+                const errorDetails = validation.error.details.map((detail) => detail.message)
+
+                return {
+                    status: false,
+                    code: 422,
+                    error: errorDetails.join(', ')
+                }
+            }
+
             const create = await GoalModel.create({
                 text: body.text,
                 user: body.id
@@ -55,6 +72,24 @@ class _goal {
 
     updateGoal = async (body: UpdateGoal) => {
         try {
+            const schema = Joi.object({
+                id: Joi.string().required(),
+                text: Joi.string().required(),
+                user: Joi.string().required(),
+            }).options({ abortEarly: false })
+
+            const validation = schema.validate(body)
+
+            if (validation.error) {
+                const errorDetails = validation.error.details.map((detail) => detail.message)
+
+                return {
+                    status: false,
+                    code: 422,
+                    error: errorDetails.join(', ')
+                }
+            }
+
             const goal = await GoalModel.findById(body.id)
 
             if (!goal) {
@@ -64,9 +99,7 @@ class _goal {
                 }
             }
 
-            const user = await UserModel.findById(body.user)
-
-            if (!user) {
+            if (!body.user) {
                 return {
                     status: false,
                     error: 'Sorry, user not found'
@@ -74,7 +107,7 @@ class _goal {
             }
 
             // Make sure the logged in user match with goal user
-            if (goal.user.toString() !== user.id) {
+            if (goal.user.toString() !== body.user) {
                 return {
                     status: false,
                     code: 401,
@@ -100,6 +133,25 @@ class _goal {
 
     deleteGoal = async (id: string, userId: string) => {
         try {
+            const body = { id, userId }
+
+            const schema = Joi.object({
+                id: Joi.string().required(),
+                userId: Joi.string().required(),
+            }).options({ abortEarly: false })
+
+            const validation = schema.validate(body)
+
+            if (validation.error) {
+                const errorDetails = validation.error.details.map((detail) => detail.message)
+
+                return {
+                    status: false,
+                    code: 422,
+                    error: errorDetails.join(', ')
+                }
+            }
+
             // const goal = await GoalModel.deleteOne({id})
             const goal = await GoalModel.findById(id)
 
@@ -110,9 +162,7 @@ class _goal {
                 }
             }
 
-            const user = await UserModel.findById(userId)
-
-            if (!user) {
+            if (!userId) {
                 return {
                     status: false,
                     error: 'Sorry, user not found'
@@ -120,7 +170,7 @@ class _goal {
             }
 
             // Make sure the logged in user match with goal user
-            if (goal.user.toString() !== user.id) {
+            if (goal.user.toString() !== userId) {
                 return {
                     status: false,
                     code: 401,

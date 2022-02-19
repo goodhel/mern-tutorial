@@ -12,6 +12,8 @@ const userSchema = new Schema({
     email: { type: String, required: [true, 'Please add a email']},
     password: { type: String, required: [true, 'Please add a password']},
     phone: { type: String },
+},{
+    timestamps: true
 })
 
 const UserModel = model('User', userSchema)

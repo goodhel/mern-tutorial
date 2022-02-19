@@ -243,6 +243,7 @@ class _user {
                 return {
                     status: true,
                     data: {
+                        name: user.name,
                         token
                     }
                 }
